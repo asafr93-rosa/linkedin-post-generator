@@ -140,8 +140,7 @@ export default function App() {
         <img
           src="/hicenter-logo.png"
           alt="HiCenter"
-          className="h-14 w-auto object-contain"
-          style={{ mixBlendMode: "multiply" }}
+          className="h-20 w-auto object-contain"
         />
       </div>
 
