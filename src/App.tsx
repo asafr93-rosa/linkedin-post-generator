@@ -132,18 +132,24 @@ export default function App() {
 
   return (
     <div
-      className="min-h-screen flex flex-col items-center px-4 py-12"
+      className="min-h-screen flex flex-col"
       style={{ backgroundColor: C.pageBg }}
     >
+      {/* Top navbar */}
+      <div className="px-6 py-3" style={{ borderBottom: `1px solid ${C.border}` }}>
+        <img
+          src="/hicenter-logo.png"
+          alt="HiCenter"
+          className="h-14 w-auto object-contain"
+          style={{ mixBlendMode: "multiply" }}
+        />
+      </div>
+
+      <div className="flex flex-col items-center px-4 py-10">
       <div className="w-full max-w-xl">
 
         {/* Header */}
         <div className="mb-8 text-center">
-          <img
-            src="/hicenter-logo.png"
-            alt="HiCenter"
-            className="mx-auto mb-5 h-12 w-auto object-contain"
-          />
           <h1
             className="text-2xl font-bold tracking-tight"
             style={{ color: C.navy }}
@@ -325,6 +331,7 @@ export default function App() {
         <p className="mt-6 text-center text-xs" style={{ color: C.textMuted }}>
           Powered by Claude Sonnet 4.6
         </p>
+      </div>
       </div>
     </div>
   );
