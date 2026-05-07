@@ -43,6 +43,28 @@ USER PREFERENCES (learned from past feedback — apply strictly to every post):
 ${lines}`;
 }
 
+// Color tokens
+const C = {
+  pageBg: "#edf2fb",
+  cardBg: "#e2eafc",
+  inputBg: "#f5f8ff",
+  border: "#c1d3fe",
+  borderFocus: "#93aff7",
+  navy: "#1e3a8a",
+  navyHover: "#1e40af",
+  teal: "#0ea5e9",
+  textPrimary: "#1e2d5a",
+  textSecondary: "#4a5f9a",
+  textMuted: "#8fa3c8",
+  errorBg: "#fef2f2",
+  errorBorder: "#fca5a5",
+  errorText: "#b91c1c",
+  successBg: "#eff6ff",
+  successBorder: "#93c5fd",
+  successText: "#1d4ed8",
+  skeletonBg: "#d1ddfb",
+};
+
 export default function App() {
   const [input, setInput] = useState("");
   const [output, setOutput] = useState("");
@@ -111,28 +133,37 @@ export default function App() {
   return (
     <div
       className="min-h-screen flex flex-col items-center px-4 py-12"
-      style={{ backgroundColor: "#0D1117" }}
+      style={{ backgroundColor: C.pageBg }}
     >
       <div className="w-full max-w-xl">
+
         {/* Header */}
         <div className="mb-8 text-center">
-          <h1 className="text-2xl font-bold tracking-tight text-white">
+          <img
+            src="/hicenter-logo.png"
+            alt="HiCenter"
+            className="mx-auto mb-5 h-12 w-auto object-contain"
+          />
+          <h1
+            className="text-2xl font-bold tracking-tight"
+            style={{ color: C.navy }}
+          >
             LinkedIn Post Generator
           </h1>
-          <p className="mt-1.5 text-sm" style={{ color: "#8B949E" }}>
+          <p className="mt-1.5 text-sm" style={{ color: C.textSecondary }}>
             Turn rough notes into polished posts — powered by Claude
           </p>
         </div>
 
         {/* Input card */}
         <div
-          className="rounded-xl p-5 mb-3"
-          style={{ backgroundColor: "#161B22", border: "1px solid #30363D" }}
+          className="rounded-2xl p-5 mb-3 shadow-sm"
+          style={{ backgroundColor: C.cardBg, border: `1px solid ${C.border}` }}
         >
           <label
             htmlFor="input"
             className="block text-xs font-semibold uppercase tracking-widest mb-2"
-            style={{ color: "#8B949E" }}
+            style={{ color: C.textSecondary }}
           >
             Your Raw Idea
           </label>
@@ -145,22 +176,22 @@ export default function App() {
             }}
             placeholder="What do you want to post about?"
             rows={5}
-            className="w-full rounded-lg px-4 py-3 text-sm text-white resize-none outline-none transition"
+            className="w-full rounded-xl px-4 py-3 text-sm resize-none outline-none transition"
             style={{
-              backgroundColor: "#0D1117",
-              border: "1px solid #30363D",
-              color: "white",
+              backgroundColor: C.inputBg,
+              border: `1px solid ${C.border}`,
+              color: C.textPrimary,
             }}
           />
           <button
             onClick={handleGenerate}
             disabled={isLoading || !input.trim()}
-            className="mt-3 w-full py-3 rounded-lg text-sm font-semibold text-black transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
-            style={{ backgroundColor: "#00D4AA" }}
+            className="mt-3 w-full py-3 rounded-xl text-sm font-semibold text-white transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
+            style={{ backgroundColor: C.navy }}
           >
             {isLoading ? "Generating…" : "Generate Post"}
           </button>
-          <p className="mt-2 text-center text-xs" style={{ color: "#484F58" }}>
+          <p className="mt-2 text-center text-xs" style={{ color: C.textMuted }}>
             Tip: ⌘↵ to generate
           </p>
         </div>
@@ -168,11 +199,11 @@ export default function App() {
         {/* Error */}
         {error && (
           <div
-            className="rounded-xl px-4 py-3 mb-3 text-sm"
+            className="rounded-2xl px-4 py-3 mb-3 text-sm"
             style={{
-              backgroundColor: "#2D1B1B",
-              border: "1px solid #6E3030",
-              color: "#F87171",
+              backgroundColor: C.errorBg,
+              border: `1px solid ${C.errorBorder}`,
+              color: C.errorText,
             }}
           >
             {error}
@@ -182,14 +213,14 @@ export default function App() {
         {/* Loading skeleton */}
         {isLoading && (
           <div
-            className="rounded-xl p-5 animate-pulse"
-            style={{ backgroundColor: "#161B22", border: "1px solid #30363D" }}
+            className="rounded-2xl p-5 animate-pulse shadow-sm"
+            style={{ backgroundColor: C.cardBg, border: `1px solid ${C.border}` }}
           >
             {[1, 0.9, 0.75, 1, 0.6].map((w, i) => (
               <div
                 key={i}
-                className="h-3 rounded mb-2.5 last:mb-0"
-                style={{ backgroundColor: "#21262D", width: `${w * 100}%` }}
+                className="h-3 rounded-full mb-2.5 last:mb-0"
+                style={{ backgroundColor: C.skeletonBg, width: `${w * 100}%` }}
               />
             ))}
           </div>
@@ -198,23 +229,23 @@ export default function App() {
         {/* Output card */}
         {output && !isLoading && (
           <div
-            className="rounded-xl p-5"
-            style={{ backgroundColor: "#161B22", border: "1px solid #30363D" }}
+            className="rounded-2xl p-5 shadow-sm"
+            style={{ backgroundColor: C.cardBg, border: `1px solid ${C.border}` }}
           >
             <div className="flex items-center justify-between mb-2">
               <span
                 className="text-xs font-semibold uppercase tracking-widest"
-                style={{ color: "#8B949E" }}
+                style={{ color: C.textSecondary }}
               >
                 Generated Post
               </span>
               <button
                 onClick={handleCopy}
-                className="text-xs font-medium px-3 py-1 rounded-md transition-colors"
+                className="text-xs font-semibold px-3 py-1 rounded-lg transition-colors"
                 style={{
-                  backgroundColor: copied ? "#1A3A2E" : "#21262D",
-                  color: copied ? "#00D4AA" : "#8B949E",
-                  border: "1px solid #30363D",
+                  backgroundColor: copied ? C.successBg : C.inputBg,
+                  color: copied ? C.successText : C.textSecondary,
+                  border: `1px solid ${copied ? C.successBorder : C.border}`,
                 }}
               >
                 {copied ? "Copied!" : "Copy"}
@@ -225,10 +256,11 @@ export default function App() {
               value={output}
               readOnly
               rows={14}
-              className="w-full rounded-lg px-4 py-3 text-sm text-white resize-none outline-none leading-relaxed"
+              className="w-full rounded-xl px-4 py-3 text-sm resize-none outline-none leading-relaxed"
               style={{
-                backgroundColor: "#0D1117",
-                border: "1px solid #30363D",
+                backgroundColor: C.inputBg,
+                border: `1px solid ${C.border}`,
+                color: C.textPrimary,
               }}
             />
           </div>
@@ -237,26 +269,30 @@ export default function App() {
         {/* Feedback card */}
         {output && !isLoading && (
           <div
-            className="rounded-xl p-5 mt-3"
-            style={{ backgroundColor: "#161B22", border: "1px solid #30363D" }}
+            className="rounded-2xl p-5 mt-3 shadow-sm"
+            style={{ backgroundColor: C.cardBg, border: `1px solid ${C.border}` }}
           >
             <div className="flex items-center justify-between mb-1">
               <span
                 className="text-xs font-semibold uppercase tracking-widest"
-                style={{ color: "#8B949E" }}
+                style={{ color: C.textSecondary }}
               >
                 Refine Future Posts
               </span>
               {feedbackItems.length > 0 && (
                 <span
-                  className="text-xs px-2 py-0.5 rounded-full"
-                  style={{ backgroundColor: "#1A3A2E", color: "#00D4AA" }}
+                  className="text-xs font-medium px-2.5 py-0.5 rounded-full"
+                  style={{
+                    backgroundColor: C.successBg,
+                    color: C.successText,
+                    border: `1px solid ${C.successBorder}`,
+                  }}
                 >
                   {feedbackItems.length} preference{feedbackItems.length !== 1 ? "s" : ""} saved
                 </span>
               )}
             </div>
-            <p className="text-xs mb-3" style={{ color: "#484F58" }}>
+            <p className="text-xs mb-3" style={{ color: C.textMuted }}>
               Tell the generator what to do differently — it will apply your feedback to every post from now on.
             </p>
             <textarea
@@ -264,21 +300,21 @@ export default function App() {
               onChange={(e) => setFeedbackInput(e.target.value)}
               placeholder="e.g. Use shorter sentences. Avoid buzzwords. Always end with a question."
               rows={3}
-              className="w-full rounded-lg px-4 py-3 text-sm text-white resize-none outline-none"
+              className="w-full rounded-xl px-4 py-3 text-sm resize-none outline-none"
               style={{
-                backgroundColor: "#0D1117",
-                border: "1px solid #30363D",
-                color: "white",
+                backgroundColor: C.inputBg,
+                border: `1px solid ${C.border}`,
+                color: C.textPrimary,
               }}
             />
             <button
               onClick={handleSubmitFeedback}
               disabled={!feedbackInput.trim()}
-              className="mt-2 w-full py-2.5 rounded-lg text-sm font-semibold transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
+              className="mt-2 w-full py-2.5 rounded-xl text-sm font-semibold transition-all disabled:opacity-40 disabled:cursor-not-allowed"
               style={{
-                backgroundColor: feedbackSaved ? "#1A3A2E" : "#21262D",
-                color: feedbackSaved ? "#00D4AA" : "#8B949E",
-                border: `1px solid ${feedbackSaved ? "#00D4AA" : "#30363D"}`,
+                backgroundColor: feedbackSaved ? C.successBg : C.inputBg,
+                color: feedbackSaved ? C.successText : C.textSecondary,
+                border: `1px solid ${feedbackSaved ? C.successBorder : C.border}`,
               }}
             >
               {feedbackSaved ? "Preference saved — next post will reflect this" : "Submit Feedback"}
@@ -286,7 +322,7 @@ export default function App() {
           </div>
         )}
 
-        <p className="mt-6 text-center text-xs" style={{ color: "#484F58" }}>
+        <p className="mt-6 text-center text-xs" style={{ color: C.textMuted }}>
           Powered by Claude Sonnet 4.6
         </p>
       </div>
