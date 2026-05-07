@@ -1,7 +1,7 @@
 import { useState, useRef } from "react";
 import Anthropic from "@anthropic-ai/sdk";
 
-const SYSTEM_PROMPT = `You are a LinkedIn content writer for HiCenter Ventures, a VC and ecosystem builder based in Haifa, Israel.
+const BASE_SYSTEM_PROMPT = `You are a LinkedIn content writer for HiCenter Ventures, a VC and ecosystem builder based in Haifa, Israel.
 
 LANGUAGE RULE — strict, no exceptions:
 - If the user's input is in Hebrew OR the post is about Israeli entrepreneurs, local ecosystem, jobs, or community → write the ENTIRE post in Hebrew.
@@ -20,12 +20,38 @@ LENGTH: 5–10 lines total. No more. If the content is thin, write less — don'
 
 Output ONLY the post text — no explanation, no preamble, no metadata.`;
 
+const FEEDBACK_STORAGE_KEY = "linkedin-generator-feedback";
+
+function loadFeedback(): string[] {
+  try {
+    return JSON.parse(localStorage.getItem(FEEDBACK_STORAGE_KEY) ?? "[]");
+  } catch {
+    return [];
+  }
+}
+
+function saveFeedback(items: string[]) {
+  localStorage.setItem(FEEDBACK_STORAGE_KEY, JSON.stringify(items));
+}
+
+function buildSystemPrompt(feedbackItems: string[]): string {
+  if (feedbackItems.length === 0) return BASE_SYSTEM_PROMPT;
+  const lines = feedbackItems.map((f, i) => `${i + 1}. ${f}`).join("\n");
+  return `${BASE_SYSTEM_PROMPT}
+
+USER PREFERENCES (learned from past feedback — apply strictly to every post):
+${lines}`;
+}
+
 export default function App() {
   const [input, setInput] = useState("");
   const [output, setOutput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [copied, setCopied] = useState(false);
+  const [feedbackInput, setFeedbackInput] = useState("");
+  const [feedbackSaved, setFeedbackSaved] = useState(false);
+  const [feedbackItems, setFeedbackItems] = useState<string[]>(loadFeedback);
   const outputRef = useRef<HTMLTextAreaElement>(null);
 
   async function handleGenerate() {
@@ -43,7 +69,7 @@ export default function App() {
       const message = await client.messages.create({
         model: "claude-sonnet-4-6",
         max_tokens: 1024,
-        system: SYSTEM_PROMPT,
+        system: buildSystemPrompt(feedbackItems),
         messages: [{ role: "user", content: input.trim() }],
       });
 
@@ -57,6 +83,17 @@ export default function App() {
     } finally {
       setIsLoading(false);
     }
+  }
+
+  function handleSubmitFeedback() {
+    const trimmed = feedbackInput.trim();
+    if (!trimmed) return;
+    const updated = [...feedbackItems, trimmed];
+    setFeedbackItems(updated);
+    saveFeedback(updated);
+    setFeedbackInput("");
+    setFeedbackSaved(true);
+    setTimeout(() => setFeedbackSaved(false), 2500);
   }
 
   async function handleCopy() {
@@ -194,6 +231,58 @@ export default function App() {
                 border: "1px solid #30363D",
               }}
             />
+          </div>
+        )}
+
+        {/* Feedback card */}
+        {output && !isLoading && (
+          <div
+            className="rounded-xl p-5 mt-3"
+            style={{ backgroundColor: "#161B22", border: "1px solid #30363D" }}
+          >
+            <div className="flex items-center justify-between mb-1">
+              <span
+                className="text-xs font-semibold uppercase tracking-widest"
+                style={{ color: "#8B949E" }}
+              >
+                Refine Future Posts
+              </span>
+              {feedbackItems.length > 0 && (
+                <span
+                  className="text-xs px-2 py-0.5 rounded-full"
+                  style={{ backgroundColor: "#1A3A2E", color: "#00D4AA" }}
+                >
+                  {feedbackItems.length} preference{feedbackItems.length !== 1 ? "s" : ""} saved
+                </span>
+              )}
+            </div>
+            <p className="text-xs mb-3" style={{ color: "#484F58" }}>
+              Tell the generator what to do differently — it will apply your feedback to every post from now on.
+            </p>
+            <textarea
+              value={feedbackInput}
+              onChange={(e) => setFeedbackInput(e.target.value)}
+              placeholder="e.g. Use shorter sentences. Avoid buzzwords. Always end with a question."
+              rows={3}
+              className="w-full rounded-lg px-4 py-3 text-sm text-white resize-none outline-none"
+              style={{
+                backgroundColor: "#0D1117",
+                border: "1px solid #30363D",
+                color: "white",
+              }}
+            />
+            <button
+              onClick={handleSubmitFeedback}
+              disabled={!feedbackInput.trim()}
+              className="mt-2 w-full py-2.5 rounded-lg text-sm font-semibold transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
+              style={{
+                backgroundColor: feedbackSaved ? "#1A3A2E" : "#21262D",
+                color: feedbackSaved ? "#00D4AA" : "#8B949E",
+                border: `1px solid ${feedbackSaved ? "#00D4AA" : "#30363D"}`,
+              }}
+            >
+              {feedbackSaved ? "Preference saved — next post will reflect this" : "Submit Feedback"}
+            </button>
           </div>
         )}
 
